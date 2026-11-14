@@ -1,0 +1,49 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+
+# One mixin into PowerGrid's Electric Motor block entity.
+[[mixins]]
+config="pgdynamo.mixins.json"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+authors="${mod_authors}"
+description='''
+Unofficial add-on for Create: Power Grid by patryk3211.
+Lets Power Grid's Electric Motor run as a generator, like a real permanent-magnet machine.
+Pick the Mode on the value box on top of the motor: Motor (unchanged), or Generator with a
+12, 24, 30, 60, 120 V or stock (258 V) winding, rated at 256 RPM. Volts rise with RPM, and
+drawing current takes stress from the shaft, using the same physics as PowerGrid's own
+induction generator. It never takes more stress than the shaft has free: the voltage sags instead.
+'''
+
+[[dependencies.${mod_id}]]
+    modId="neoforge"
+    type="required"
+    versionRange="${neo_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="create"
+    type="required"
+    versionRange="${create_version_range}"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="powergrid"
+    type="required"
+    versionRange="${powergrid_version_range}"
+    ordering="AFTER"
+    side="BOTH"

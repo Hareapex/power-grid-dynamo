@@ -1,0 +1,12 @@
+{
+  "pgdynamo.gui.mode": "Mode",
+  "pgdynamo.mode.motor": "Motor",
+  "pgdynamo.mode.gen_12": "Generator: 12 V winding",
+  "pgdynamo.mode.gen_24": "Generator: 24 V winding",
+  "pgdynamo.mode.gen_30": "Generator: 30 V winding",
+  "pgdynamo.mode.gen_60": "Generator: 60 V winding",
+  "pgdynamo.mode.gen_120": "Generator: 120 V winding",
+  "pgdynamo.mode.gen_stock": "Generator: stock winding (258 V)",
+  "pgdynamo.goggles.winding": "Dynamo: %s V winding (at 256 RPM)",
+  "pgdynamo.goggles.output": "Output: %s V, %s A, %s W"
+}
