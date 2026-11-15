@@ -53,4 +53,4 @@ If Gradle fails on Windows with "Unable to establish loopback connection", creat
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+Apache-2.0. See [LICENSE](LICENSE). Copyright 2026 Hareapex.
