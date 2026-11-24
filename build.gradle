@@ -1,6 +1,6 @@
 plugins {
     id 'java-library'
-    id 'net.neoforged.moddev' version '2.0.148'
+    id 'net.neoforged.moddev.legacyforge' version '2.0.148'
 }
 
 version = mod_version
@@ -10,25 +10,56 @@ base {
     archivesName = archive_name
 }
 
-// The game tests and their empty test structure only run from the source set; keep them out of the release jar.
 tasks.named('jar', Jar) {
+    // The game tests and their empty test structure only run from the source set; keep them out of the release jar.
     exclude 'dev/hareapex/pgdynamo/gametest/**'
-    exclude 'data/pgdynamo/structure/**'
+    exclude 'data/pgdynamo/structures/**'
+    // Forge 1.20.1 finds mixin configs through the jar manifest, not through mods.toml.
+    manifest.attributes('MixinConfigs': "${mod_id}.mixins.json")
 }
 
-// Minecraft 1.21.1 ships Java 21.
+// Minecraft 1.20.1 runs on Java 17. There is no JDK 17 here, so JDK 21 compiles with --release 17
+// (Java 17 class files, Java 17 APIs only), the same way Power Grid itself is built.
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 17
+}
 
-neoForge {
-    version = project.neo_version
-
-    parchment {
-        mappingsVersion = project.parchment_mappings_version
-        minecraftVersion = project.parchment_minecraft_version
+repositories {
+    maven {
+        name = 'Create' // Create, Ponder, Flywheel
+        url = 'https://maven.createmod.net'
+        content {
+            includeGroup 'com.simibubi.create'
+            includeGroup 'net.createmod.ponder'
+            includeGroup 'dev.engine-room.flywheel'
+        }
     }
+    maven {
+        name = 'tterrag' // Registrate
+        url = 'https://maven.tterrag.com'
+        content { includeGroup 'com.tterrag.registrate' }
+    }
+    maven {
+        name = 'Architectury'
+        url = 'https://maven.architectury.dev'
+        content { includeGroup 'dev.architectury' }
+    }
+    exclusiveContent {
+        forRepository { maven { name = 'Modrinth'; url = 'https://api.modrinth.com/maven' } }
+        filter { includeGroup 'maven.modrinth' }
+    }
+    maven {
+        name = 'MinecraftForge'
+        url = 'https://maven.minecraftforge.net'
+    }
+}
+
+legacyForge {
+    version = "${minecraft_version}-${forge_version}"
 
     runs {
-        // run/client/mods and run/gametest/mods hold Create, PowerGrid and Architectury, copied from the pack.
         client {
             client()
             gameDirectory = project.file('run/client')
@@ -37,7 +68,7 @@ neoForge {
         gameTestServer {
             type = "gameTestServer"
             gameDirectory = project.file('run/gametest')
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
         }
     }
 
@@ -48,20 +79,38 @@ neoForge {
     }
 }
 
+// Adds the mixin config to the dev runs (the release jar uses the manifest entry above).
+// Every target in the mixin is a Power Grid or Create name (remap = false), so it needs no refmap.
+mixin {
+    config "${mod_id}.mixins.json"
+}
+
+// Run the game on Java 17, like a real Forge 1.20.1 install: CurseForge's Java 17 runtime,
+// listed in gradle.properties.
+afterEvaluate {
+    ['runClient', 'runGameTestServer'].each { runTask ->
+        tasks.named(runTask, JavaExec) {
+            javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(17) }
+        }
+    }
+}
+
 dependencies {
-    // Compile against the exact jars the pack runs. Nothing is bundled: the pack already has them.
-    compileOnly files(
-            'libs/powergrid-mc1.21.1-0.6.2.jar',
-            'libs/create-1.21.1-6.0.10.jar',
-            'libs/flywheel-neoforge-1.21.1-1.0.6.jar',
-            'libs/ponder-neoforge-1.0.82+mc1.21.1.jar',
-            'libs/Registrate-MC1.21-1.3.0+67.jar')
+    // Forge 1.20.1 mod jars use SRG names; the mod* configurations remap them to the dev names.
+    // Nothing is bundled: players install Create, Power Grid and Architectury API themselves.
+    modImplementation("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
+    modImplementation("net.createmod.ponder:Ponder-Forge-${minecraft_version}:${ponder_version}") { transitive = false }
+    modCompileOnly("dev.engine-room.flywheel:flywheel-forge-api-${minecraft_version}:${flywheel_version}") { transitive = false }
+    modRuntimeOnly("dev.engine-room.flywheel:flywheel-forge-${minecraft_version}:${flywheel_version}") { transitive = false }
+    modImplementation("com.tterrag.registrate:Registrate:${registrate_version}") { transitive = false }
+    modImplementation("maven.modrinth:power-grid:${powergrid_modrinth_version}") { transitive = false }
+    modRuntimeOnly("dev.architectury:architectury-forge:${architectury_version}") { transitive = false }
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
     var replaceProperties = [
             minecraft_version_range: minecraft_version_range,
-            neo_version_range      : neo_version_range,
+            forge_version_range    : forge_version_range,
             loader_version_range   : loader_version_range,
             powergrid_version_range: powergrid_version_range,
             create_version_range   : create_version_range,
@@ -77,8 +126,4 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
     into "build/generated/sources/modMetadata"
 }
 sourceSets.main.resources.srcDir generateModMetadata
-neoForge.ideSyncTask generateModMetadata
-
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
-}
+legacyForge.ideSyncTask generateModMetadata

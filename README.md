@@ -2,7 +2,9 @@
 
 An unofficial add-on for [Create: Power Grid](https://www.curseforge.com/minecraft/mc-mods/power-grid). It lets Power Grid's Electric Motor run as a generator, like a real permanent-magnet machine.
 
-Minecraft 1.21.1 · NeoForge · Create 6.0.x · Create: Power Grid 0.6.2 · mod id `pgdynamo`
+Minecraft 1.20.1 · Forge · Create 6.0.x · Create: Power Grid 0.6.2 · mod id `pgdynamo`
+
+This is the **Forge 1.20.1** port (branch `forge-1.20.1`). The NeoForge 1.21.1 version is on `main`. Both versions have the same modes, windings and numbers.
 
 ## Using it
 
@@ -18,22 +20,18 @@ Minecraft 1.21.1 · NeoForge · Create 6.0.x · Create: Power Grid 0.6.2 · mod 
 
 ## Requirements
 
-- Minecraft 1.21.1 and NeoForge 21.1.
-- Create 6.0.x.
-- Create: Power Grid **0.6.2 exactly**. The add-on changes Power Grid's motor from the inside, so each Power Grid update needs a matching Dynamo release.
+- Minecraft 1.20.1 and Forge 47.
+- Create 6.0.7 or newer 6.0.x (Power Grid's own minimum).
+- Create: Power Grid **0.6.2 exactly**, the Forge 1.20.1 build (`powergrid-mc1.20.1-0.6.2.jar`), and Architectury API, which Power Grid needs. The add-on changes Power Grid's motor from the inside, so each Power Grid update needs a matching Dynamo release.
 - **Multiplayer:** install it on the server and on every client, because the Mode box and the goggles readout are client-side. Players without it can still join, but they can't set a dynamo.
 
 ## Building
 
-You need JDK 21. The jars it compiles against aren't in this repository; copy them into `libs/`:
+You need JDK 21; the build compiles with `--release 17`, so the classes run on Java 17. Gradle downloads Create, Ponder, Flywheel, Registrate, Architectury API and Power Grid from their Maven repositories and remaps them to the dev names (ModDevGradle Legacy).
 
-- `powergrid-mc1.21.1-0.6.2.jar`
-- `create-1.21.1-6.0.10.jar`
-- From inside the Create jar's `META-INF/jarjar/` folder: `flywheel-neoforge-1.21.1-1.0.6.jar`, `ponder-neoforge-1.0.82+mc1.21.1.jar` and `Registrate-MC1.21-1.3.0+67.jar`
+Run `./gradlew build`. The jar to install lands in `build/libs/`; it's reobfuscated to SRG names, as Forge 1.20.1 needs.
 
-Then run `./gradlew build`. The jar lands in `build/libs/`.
-
-**Tests:** put Create, Power Grid and Architectury into `run/gametest/mods/`, then run `./gradlew runGameTestServer`. Nine tests run Power Grid's real circuit solver on Create's real shaft network:
+**Tests:** run `./gradlew runGameTestServer`. The game runs on Java 17 there, so Gradle needs a Java 17 runtime: list its folder in `org.gradle.java.installations.paths` in `gradle.properties`. Nine tests run Power Grid's real circuit solver on Create's real shaft network:
 - open-circuit voltage
 - matched-load current and stress
 - a 12 V winding giving the same 652 W

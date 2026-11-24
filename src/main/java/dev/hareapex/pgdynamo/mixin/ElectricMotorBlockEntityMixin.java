@@ -10,7 +10,6 @@ import dev.hareapex.pgdynamo.DynamoPhysics;
 import dev.hareapex.pgdynamo.IDynamoMotor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -154,7 +153,7 @@ public abstract class ElectricMotorBlockEntityMixin extends GeneratingKineticBlo
 
     /** PowerGrid builds the circuit before the saved mode is read, so rebuild it once the mode is known. */
     @Inject(method = "read", at = @At("TAIL"))
-    private void pgdynamo$read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket, CallbackInfo ci) {
+    private void pgdynamo$read(CompoundTag tag, boolean clientPacket, CallbackInfo ci) {
         pgdynamo$impact = tag.getFloat("DynamoImpact");
         if (clientPacket) {
             pgdynamo$shownVolts = tag.getFloat("DynamoVolts");
@@ -165,7 +164,7 @@ public abstract class ElectricMotorBlockEntityMixin extends GeneratingKineticBlo
     }
 
     @Inject(method = "write", at = @At("TAIL"))
-    private void pgdynamo$write(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket, CallbackInfo ci) {
+    private void pgdynamo$write(CompoundTag tag, boolean clientPacket, CallbackInfo ci) {
         if (!pgdynamo$generating())
             return;
         tag.putFloat("DynamoImpact", pgdynamo$impact);

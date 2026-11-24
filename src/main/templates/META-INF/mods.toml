@@ -3,9 +3,7 @@ loaderVersion="${loader_version_range}"
 license="${mod_license}"
 issueTrackerURL="https://github.com/Hareapex/power-grid-dynamo/issues"
 
-# One mixin into PowerGrid's Electric Motor block entity.
-[[mixins]]
-config="pgdynamo.mixins.json"
+# Forge 1.20.1 has no [[mixins]] section: the mixin config is listed in the jar manifest (MixinConfigs).
 
 [[mods]]
 modId="${mod_id}"
@@ -23,29 +21,29 @@ induction generator. It never takes more stress than the shaft has free: the vol
 '''
 
 [[dependencies.${mod_id}]]
-    modId="neoforge"
-    type="required"
-    versionRange="${neo_version_range}"
+    modId="forge"
+    mandatory=true
+    versionRange="${forge_version_range}"
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.${mod_id}]]
     modId="minecraft"
-    type="required"
+    mandatory=true
     versionRange="${minecraft_version_range}"
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.${mod_id}]]
     modId="create"
-    type="required"
+    mandatory=true
     versionRange="${create_version_range}"
     ordering="AFTER"
     side="BOTH"
 
 [[dependencies.${mod_id}]]
     modId="powergrid"
-    type="required"
+    mandatory=true
     versionRange="${powergrid_version_range}"
     ordering="AFTER"
     side="BOTH"

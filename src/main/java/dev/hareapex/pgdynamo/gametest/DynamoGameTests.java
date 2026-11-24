@@ -14,8 +14,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.neoforged.neoforge.gametest.GameTestHolder;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
+import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.PrefixGameTestTemplate;
 import org.patryk3211.powergrid.collections.ModdedBlocks;
 import org.patryk3211.powergrid.electricity.GlobalElectricNetworks;
 import org.patryk3211.powergrid.electricity.creative.CreativeSourceBlockEntity;
@@ -50,7 +50,7 @@ public final class DynamoGameTests {
     private static IDynamoMotor setUp(GameTestHelper h, int rpm, DynamoMode mode) {
         h.setBlock(DRIVER, AllBlocks.CREATIVE_MOTOR.get().defaultBlockState().setValue(BlockStateProperties.FACING, Direction.EAST));
         h.setBlock(DYNAMO, ModdedBlocks.ELECTRIC_MOTOR.get().defaultBlockState().setValue(ElectricMotorBlock.FACING, Direction.WEST));
-        CreativeMotorBlockEntity driver = h.getBlockEntity(DRIVER);
+        CreativeMotorBlockEntity driver = (CreativeMotorBlockEntity) h.getBlockEntity(DRIVER);
         driver.generatedSpeed.setValue(rpm);
         BlockEntity be = h.getBlockEntity(DYNAMO);
         IDynamoMotor dynamo = (IDynamoMotor) be;
@@ -147,7 +147,7 @@ public final class DynamoGameTests {
                 .thenIdle(60)
                 .thenExecute(() -> {
                     forward[0] = d.pgdynamo$getEmf();
-                    CreativeMotorBlockEntity driver = h.getBlockEntity(DRIVER);
+                    CreativeMotorBlockEntity driver = (CreativeMotorBlockEntity) h.getBlockEntity(DRIVER);
                     driver.generatedSpeed.setValue(-64);
                 })
                 .thenIdle(60)
@@ -215,11 +215,11 @@ public final class DynamoGameTests {
                 .thenIdle(SETTLE)
                 .thenExecute(() -> {
                     BlockEntity old = h.getBlockEntity(DYNAMO);
-                    CompoundTag saved = old.saveWithoutMetadata(h.getLevel().registryAccess());
+                    CompoundTag saved = old.saveWithoutMetadata();
                     h.setBlock(DYNAMO, Blocks.AIR.defaultBlockState());
                     h.setBlock(DYNAMO, ModdedBlocks.ELECTRIC_MOTOR.get().defaultBlockState().setValue(ElectricMotorBlock.FACING, Direction.WEST));
                     BlockEntity fresh = h.getBlockEntity(DYNAMO);
-                    fresh.loadWithComponents(saved, h.getLevel().registryAccess());
+                    fresh.load(saved);
                 })
                 .thenIdle(SETTLE)
                 .thenExecute(() -> wireLoad(h, windingOhms))
@@ -250,7 +250,7 @@ public final class DynamoGameTests {
                     BlockPos source = h.absolutePos(sourcePos);
                     GlobalElectricNetworks.makeSimpleConnection(h.getLevel(), new BlockWireEndpoint(source, 0), new BlockWireEndpoint(motor, 0), 0.001f);
                     GlobalElectricNetworks.makeSimpleConnection(h.getLevel(), new BlockWireEndpoint(source, 1), new BlockWireEndpoint(motor, 1), 0.001f);
-                    CreativeSourceBlockEntity src = h.getBlockEntity(sourcePos);
+                    CreativeSourceBlockEntity src = (CreativeSourceBlockEntity) h.getBlockEntity(sourcePos);
                     src.setValue((float) (STOCK_VOLTS / 2));
                 })
                 .thenIdle(RUN)
