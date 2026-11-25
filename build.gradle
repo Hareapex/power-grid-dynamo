@@ -59,10 +59,16 @@ repositories {
 legacyForge {
     version = "${minecraft_version}-${forge_version}"
 
+    // Dev only (see the file): lets Power Grid's client code run in the dev client. Not in the release jar.
+    accessTransformers.from('src/dev/accesstransformer.cfg')
+
     runs {
         client {
             client()
             gameDirectory = project.file('run/client')
+            if (project.hasProperty('quickPlay')) {
+                programArguments.addAll('--quickPlaySingleplayer', project.property('quickPlay').toString())
+            }
         }
         // Headless server that runs the tests in dev.hareapex.pgdynamo.gametest and exits.
         gameTestServer {
